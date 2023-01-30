@@ -5,8 +5,15 @@ import 'package:shop/models/product_list.dart';
 
 enum FilterOptions { Favoritos, Todos }
 
-class ProductsOverviewPage extends StatelessWidget {
+class ProductsOverviewPage extends StatefulWidget {
   const ProductsOverviewPage({super.key});
+
+  @override
+  State<ProductsOverviewPage> createState() => _ProductsOverviewPageState();
+}
+
+class _ProductsOverviewPageState extends State<ProductsOverviewPage> {
+  bool _showFavoriteOnly = false;
 
   @override
   Widget build(BuildContext context) {
@@ -31,16 +38,18 @@ class ProductsOverviewPage extends StatelessWidget {
               )
             ],
             onSelected: (FilterOptions selectedValue) {
-              if (selectedValue == FilterOptions.Favoritos) {
-                productList.showFavoriteOnly();
-              } else {
-                productList.showAll();
-              }
+              setState(() {
+                if (selectedValue == FilterOptions.Favoritos) {
+                  _showFavoriteOnly = true;
+                } else {
+                  _showFavoriteOnly = false;
+                }
+              });
             },
           ),
         ],
       ),
-      body: ProductGrid(),
+      body: ProductGrid(mustBeShowFavoriteOnly: _showFavoriteOnly),
     );
   }
 }
