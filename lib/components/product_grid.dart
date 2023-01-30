@@ -11,7 +11,7 @@ class ProductGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ProductList>(context);
+    final provider = Provider.of<ProductList>(context, listen: true);
     final List<Product> loadProducts = provider.items;
 
     return GridView.builder(
@@ -25,6 +25,10 @@ class ProductGrid extends StatelessWidget {
       ),
       itemCount: loadProducts.length,
       itemBuilder: (context, index) {
+        /**
+         * funciona de forma similar a um componten de Provider que envolve 
+         * uma área
+         */
         return ChangeNotifierProvider.value(
           value: loadProducts[index],
           child: ProductItem(),
