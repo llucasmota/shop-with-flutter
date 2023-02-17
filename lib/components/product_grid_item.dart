@@ -4,8 +4,8 @@ import 'package:shop/models/cart.dart';
 import 'package:shop/models/product.dart';
 import 'package:shop/utils/app_routes.dart';
 
-class ProductItem extends StatelessWidget {
-  const ProductItem({super.key});
+class ProductGridItem extends StatelessWidget {
+  const ProductGridItem({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +26,7 @@ class ProductItem extends StatelessWidget {
       child: GridTile(
         footer: GridTileBar(
           backgroundColor: Colors.black54,
-          title: Text(
-            product.name,
-            textAlign: TextAlign.center,
-          ),
+          title: Text(product.name, textAlign: TextAlign.center),
           leading: IconButton(
             onPressed: () {
               product.toggleFavorite();
@@ -41,6 +38,17 @@ class ProductItem extends StatelessWidget {
           ),
           trailing: IconButton(
             onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Produto adicionado com sucesso'),
+                duration: Duration(seconds: 2),
+                action: SnackBarAction(
+                  label: 'DESFAZER',
+                  onPressed: () {
+                    cartProvider.removeASingleItem(product.id);
+                  },
+                ),
+              ));
               cartProvider.addItem(product);
             },
             icon: Icon(

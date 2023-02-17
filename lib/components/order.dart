@@ -51,8 +51,10 @@ class _OrderWidgetState extends State<OrderWidget> {
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       Text('${product.quantity}x R\$ ${product.price}',
-                          style:
-                              const TextStyle(fontSize: 18, color: Colors.grey))
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey,
+                          ))
                     ],
                   );
                 }).toList(),
