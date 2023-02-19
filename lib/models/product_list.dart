@@ -17,4 +17,6 @@ class ProductList with ChangeNotifier {
     _items.add(product);
     super.notifyListeners();
   }
+
+  int get itemsCount => _items.length;
 }
