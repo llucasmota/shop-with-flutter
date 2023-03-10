@@ -1,12 +1,16 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:shop/data/dummy_data.dart';
 import 'package:shop/models/product.dart';
+import 'package:http/http.dart' as http;
 
 class ProductList with ChangeNotifier {
   List<Product> _items = dummyProducts;
   bool _showFavoriteOnly = false;
+  static const _baseUrl =
+      'https://shop-cod3r-82fbc-default-rtdb.firebaseio.com/';
 
   List<Product> get items {
     return [..._items];
@@ -15,7 +19,7 @@ class ProductList with ChangeNotifier {
   List<Product> get favoriteItems =>
       _items.where((product) => product.isFavorite).toList();
 
-  void saveProduct(Map<String, Object> data) {
+  Future<void> saveProduct(Map<String, Object> data) {
     bool hasId = data['id'] != null;
 
     final product = Product(
@@ -26,13 +30,13 @@ class ProductList with ChangeNotifier {
         imageUrl: data['imageUrl'] as String);
 
     if (hasId) {
-      updateProduct(product);
+      return updateProduct(product);
     } else {
-      addProduct(product);
+      return addProduct(product);
     }
   }
 
-  void updateProduct(Product product) {
+  Future<void> updateProduct(Product product) {
     // tem um indice válido?
 
     int index = _items.indexWhere((prd) => prd.id == product.id);
@@ -41,11 +45,30 @@ class ProductList with ChangeNotifier {
       _items[index] = product;
       super.notifyListeners();
     }
+
+    return Future.value();
   }
 
-  void addProduct(Product product) {
-    _items.add(product);
-    super.notifyListeners();
+  Future<void> addProduct(Product product) {
+    final future = http.post(Uri.parse('$_baseUrl/products.json'),
+        body: jsonEncode({
+          "name": product.name,
+          "description": product.description,
+          "image": product.imageUrl,
+          "price": product.price,
+          "isFavorite": product.isFavorite
+        }));
+
+    return future.then<void>((response) {
+      final id = jsonDecode(response.body)['name'];
+      _items.add(Product(
+          id: id,
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          imageUrl: product.imageUrl));
+      super.notifyListeners();
+    });
   }
 
   void removeProductByProductId(String productId) {
