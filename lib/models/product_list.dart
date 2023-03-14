@@ -7,10 +7,10 @@ import 'package:shop/models/product.dart';
 import 'package:http/http.dart' as http;
 
 class ProductList with ChangeNotifier {
-  List<Product> _items = dummyProducts;
+  List<Product> _items = [];
   bool _showFavoriteOnly = false;
   static const _baseUrl =
-      'https://shop-cod3r-82fbc-default-rtdb.firebaseio.com/';
+      'https://shop-cod3r-82fbc-default-rtdb.firebaseio.com';
 
   List<Product> get items {
     return [..._items];
@@ -36,7 +36,7 @@ class ProductList with ChangeNotifier {
     }
   }
 
-  Future<void> updateProduct(Product product) {
+  Future<void> updateProduct(Product product) async {
     // tem um indice válido?
 
     int index = _items.indexWhere((prd) => prd.id == product.id);
@@ -49,26 +49,47 @@ class ProductList with ChangeNotifier {
     return Future.value();
   }
 
-  Future<void> addProduct(Product product) {
-    final future = http.post(Uri.parse('$_baseUrl/products.json'),
+  Future<void> loadProducts() async {
+    _items.clear();
+
+    final response = await http.get(Uri.parse('$_baseUrl/products.json'));
+    if (response.body == 'null') return;
+    Map<String, dynamic> data = jsonDecode(response.body);
+    data.forEach(
+      (productId, productData) {
+        _items.add(
+          Product(
+              id: productId.toString(),
+              name: productData['name'],
+              description: productData['description'],
+              price: productData['price'],
+              imageUrl: productData['imageUrl'],
+              isFavorite: productData['isFavorite']),
+        );
+      },
+    );
+    notifyListeners();
+    print(jsonDecode(response.body));
+  }
+
+  Future<void> addProduct(Product product) async {
+    final response = await http.post(Uri.parse('$_baseUrl/products.json'),
         body: jsonEncode({
           "name": product.name,
           "description": product.description,
-          "image": product.imageUrl,
+          "imageUrl": product.imageUrl,
           "price": product.price,
           "isFavorite": product.isFavorite
         }));
 
-    return future.then<void>((response) {
-      final id = jsonDecode(response.body)['name'];
-      _items.add(Product(
-          id: id,
-          name: product.name,
-          description: product.description,
-          price: product.price,
-          imageUrl: product.imageUrl));
-      super.notifyListeners();
-    });
+    final id = jsonDecode(response.body)['name'];
+    _items.add(Product(
+        id: id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        imageUrl: product.imageUrl));
+    notifyListeners();
   }
 
   void removeProductByProductId(String productId) {
