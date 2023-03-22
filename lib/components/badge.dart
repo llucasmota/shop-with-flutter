@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class Badge extends StatelessWidget {
+class BadgeComponent extends StatelessWidget {
   final Widget childWidget;
   final String value;
   final Color? color;
-  const Badge(
+  const BadgeComponent(
       {Key? key, required this.childWidget, required this.value, this.color})
       : super(key: key);
 
@@ -18,14 +18,14 @@ class Badge extends StatelessWidget {
           right: 8,
           top: 8,
           child: Container(
-            padding: EdgeInsets.all(2),
+            padding: const EdgeInsets.all(2),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: color ?? Theme.of(context).colorScheme.secondary),
             child: Text(
               textAlign: TextAlign.center,
               value,
-              style: TextStyle(fontSize: 10),
+              style: const TextStyle(fontSize: 10),
             ),
           ),
         )
