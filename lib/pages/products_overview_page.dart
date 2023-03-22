@@ -5,6 +5,7 @@ import 'package:shop/components/product_grid.dart';
 import 'package:shop/models/cart.dart';
 import 'package:shop/models/product_list.dart';
 import 'package:shop/utils/app_routes.dart';
+import 'package:shop/components/badge.dart';
 
 enum FilterOptions { Favoritos, Todos }
 
@@ -73,9 +74,9 @@ class _ProductsOverviewPageState extends State<ProductsOverviewPage> {
                 Icons.shopping_cart,
               ),
             ),
-            builder: (ctx, cart, childComponent) => Badge(
-              child: childComponent!,
-              label: Text(cart.itemsCount.toString()),
+            builder: (ctx, cart, childComponent) => BadgeComponent(
+              childWidget: childComponent!,
+              value: cart.itemsCount.toString(),
             ),
           )
         ],
