@@ -12,6 +12,7 @@ class ProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final msg = ScaffoldMessenger.of(context);
     return ListTile(
       leading: CircleAvatar(
         backgroundImage: NetworkImage(product.imageUrl),
@@ -53,30 +54,18 @@ class ProductItem extends StatelessWidget {
                         ],
                       );
                     },
-                  ).then((value) {
+                  ).then((value) async {
                     if (value ?? false) {
-                      Provider.of<ProductList>(context, listen: false)
-                          .removeProductByProductId(product.id);
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text(
-                          'Produto excluído com sucesso.',
-                          style: TextStyle(color: Colors.greenAccent),
-                        ),
-                        duration: Duration(seconds: 2),
-                      ));
+                      try {
+                        await Provider.of<ProductList>(context, listen: false)
+                            .removeProductByProductId(product);
+                      } catch (error) {
+                        print(error.toString());
+                        msg.showSnackBar(
+                            SnackBar(content: Text(error.toString())));
+                      }
                     }
                   });
-
-                  // Provider.of<ProductList>(context, listen: false)
-                  //     .removeProductByProductId(product.id);
-
-                  // ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  //   content: Text('Produto excluído com sucesso'),
-                  //   duration: Duration(seconds: 2),
-                  // ));
-                  // Navigator.of(context).pushNamed(AppRoutes.HOME);
                 },
                 icon: Icon(Icons.delete,
                     color: Theme.of(context).colorScheme.error)),
