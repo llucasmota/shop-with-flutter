@@ -35,7 +35,8 @@ class MyApp extends StatelessWidget {
               primary: Colors.purple,
               secondary: Colors.deepOrange,
               onSecondary: Colors.deepOrange),
-          textTheme: const TextTheme(headline6: TextStyle(color: Colors.white)),
+          textTheme:
+              const TextTheme(titleLarge: TextStyle(color: Colors.white)),
           fontFamily: 'Lato',
         ),
         // home: ProductsOverviewPage(),
