@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shop/exceptions/http_exception.dart';
+import 'package:shop/utils/constantes.dart';
 
 class Product with ChangeNotifier {
   final String id;
@@ -16,8 +21,26 @@ class Product with ChangeNotifier {
       required this.imageUrl,
       this.isFavorite = false});
 
-  void toggleFavorite() {
+  void _toggleFavorite() {
     isFavorite = !isFavorite;
-    super.notifyListeners(); // vou notificar quando isso mudar
+    notifyListeners();
+  }
+
+  Future<void> toggleFavorite() async {
+    _toggleFavorite();
+
+    final response = await http.patch(
+        Uri.parse('${Constants.PRODUCT_BASE_URL}/$id.json'),
+        body: jsonEncode({"isFavorite": isFavorite}));
+
+    if (response.statusCode >= 400) {
+      _toggleFavorite();
+      throw HttpException(
+        message: !isFavorite
+            ? 'Não foi possível favoritar'
+            : 'Não foi possível remover dos favoritos',
+        statusCode: response.statusCode,
+      );
+    }
   }
 }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop/components/app_drawer.dart';
-import 'package:shop/components/badge.dart';
 import 'package:shop/components/product_grid.dart';
 import 'package:shop/models/cart.dart';
 import 'package:shop/models/product_list.dart';
 import 'package:shop/utils/app_routes.dart';
+import 'package:shop/components/badge.dart';
 
 enum FilterOptions { Favoritos, Todos }
 
@@ -18,6 +18,20 @@ class ProductsOverviewPage extends StatefulWidget {
 
 class _ProductsOverviewPageState extends State<ProductsOverviewPage> {
   bool _showFavoriteOnly = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Provider.of<ProductList>(context, listen: false)
+        .loadProducts()
+        .then((value) {
+      setState(() {
+        _isLoading = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,14 +74,18 @@ class _ProductsOverviewPageState extends State<ProductsOverviewPage> {
                 Icons.shopping_cart,
               ),
             ),
-            builder: (ctx, cart, child) => Badge(
-              childWidget: child!,
+            builder: (ctx, cart, childComponent) => BadgeComponent(
+              childWidget: childComponent!,
               value: cart.itemsCount.toString(),
             ),
           )
         ],
       ),
-      body: ProductGrid(mustBeShowFavoriteOnly: _showFavoriteOnly),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductGrid(mustBeShowFavoriteOnly: _showFavoriteOnly),
       drawer: AppDrawer(),
     );
   }
