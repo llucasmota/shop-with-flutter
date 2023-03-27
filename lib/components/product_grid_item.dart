@@ -28,8 +28,8 @@ class ProductGridItem extends StatelessWidget {
           backgroundColor: Colors.black54,
           title: Text(product.name, textAlign: TextAlign.center),
           leading: IconButton(
-            onPressed: () {
-              product.toggleFavorite();
+            onPressed: () async {
+              await product.toggleFavorite();
             },
             icon: Icon(
               product.isFavorite ? Icons.favorite : Icons.favorite_border,

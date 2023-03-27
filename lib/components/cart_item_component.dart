@@ -42,7 +42,7 @@ class CartItemComponent extends StatelessWidget {
                         child: Text(
                       '${cartItem.price}',
                       style: TextStyle(
-                          color: Theme.of(context).textTheme.headline6?.color),
+                          color: Theme.of(context).textTheme.titleLarge?.color),
                     )),
                   ),
                 )),
@@ -75,12 +75,18 @@ class CartItemComponent extends StatelessWidget {
                   child: Text('Não')),
               TextButton(
                   onPressed: () {
-                    Navigator.of(ctx).pop(false);
+                    Navigator.of(ctx).pop(true);
                   },
                   child: Text('Sim'))
             ],
           ),
         );
+      },
+      onDismissed: (_) {
+        Provider.of<Cart>(
+          context,
+          listen: false,
+        ).removeASingleItem(cartItem.productId);
       },
     );
   }
