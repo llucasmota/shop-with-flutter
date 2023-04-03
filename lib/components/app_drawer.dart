@@ -19,7 +19,7 @@ class AppDrawer extends StatelessWidget {
             leading: const Icon(Icons.shop),
             title: const Text('Loja'),
             onTap: () {
-              Navigator.pushNamed(context, AppRoutes.HOME);
+              Navigator.pushNamed(context, AppRoutes.AUTH_OR_HOME);
             },
           ),
           const Divider(),
