@@ -26,6 +26,7 @@ class AuthPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
+                  margin: EdgeInsets.only(bottom: 32),
                   transform: Matrix4.rotationZ(-8 * pi / 180)..translate(-10.0),
                   padding:
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 70),
@@ -46,7 +47,7 @@ class AuthPage extends StatelessWidget {
                         color: Theme.of(context).textTheme.titleLarge?.color),
                   ),
                 ),
-                AuthForm()
+                const AuthForm()
               ],
             ),
           )
