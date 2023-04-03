@@ -27,7 +27,17 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => Auth()),
-        ChangeNotifierProvider(create: (_) => ProductList()),
+
+        /// Utilizando o [ChangeNotifierProxyProvider] indicamos que nossa
+        /// classe de PRoductList depende de Auth, isso foi feito devido a necessidade
+        /// de utilizar o acess_token para visualizar os produtos
+        /// no update passamos como segundo parâmetro uma instância de auth
+        /// e um [previous] que é a última versão de product_list
+        ChangeNotifierProxyProvider<Auth, ProductList>(
+          create: (_) => ProductList('', []),
+          update: (context, auth, previous) =>
+              ProductList(auth.token ?? '', previous?.items ?? []),
+        ),
         ChangeNotifierProvider(create: (_) => Cart()),
         ChangeNotifierProvider(create: (_) => OrderList()),
       ],
