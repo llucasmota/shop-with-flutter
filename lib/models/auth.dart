@@ -8,7 +8,7 @@ import 'package:shop/utils/constantes.dart';
 class Auth with ChangeNotifier {
   String? _token;
   String? _email;
-  String? _uid; // localId
+  String? _userId; // localId
   DateTime? _expiresIn;
 
   bool get isAuthenticated {
@@ -20,7 +20,7 @@ class Auth with ChangeNotifier {
 
   String? get email => isAuthenticated ? _email : null;
 
-  String? get uid => isAuthenticated ? _uid : null;
+  String? get userId => isAuthenticated ? _userId : null;
 
   Future<void> signup(String email, String password) async {
     await _autheticate(email, password, "signUp");
@@ -47,12 +47,12 @@ class Auth with ChangeNotifier {
     } else {
       _token = body['idToken'];
       _email = body['email'];
-      _uid = body['localId'];
+      _userId = body['localId'];
       _expiresIn =
           DateTime.now().add(Duration(seconds: int.parse(body['expiresIn'])));
 
       print(
-          'token: $token , email: $email , uid: $uid , expiesIn: $_expiresIn , isAuthenticated: $isAuthenticated');
+          'token: $token , email: $email , uid: $userId , expiesIn: $_expiresIn , isAuthenticated: $isAuthenticated');
 
       super.notifyListeners();
     }
