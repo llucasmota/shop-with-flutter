@@ -9,7 +9,7 @@ import 'package:shop/exceptions/http_exception.dart';
 import 'package:shop/utils/constantes.dart';
 
 class ProductList with ChangeNotifier {
-  String _token;
+  final String _token;
   List<Product> _items = [];
 
   bool _showFavoriteOnly = false;
@@ -47,7 +47,8 @@ class ProductList with ChangeNotifier {
 
     if (index >= 0) {
       final response = await http.patch(
-          Uri.parse('${Constants.PRODUCT_BASE_URL}/${product.id}.json'),
+          Uri.parse(
+              '${Constants.PRODUCT_BASE_URL}/${product.id}.json?auth=$_token'),
           body: jsonEncode({
             "name": product.name,
             "description": product.description,
@@ -71,15 +72,16 @@ class ProductList with ChangeNotifier {
     Map<String, dynamic> data = jsonDecode(response.body);
     data.forEach(
       (productId, productData) {
-        _items.add(
-          Product(
-              id: productId.toString(),
-              name: productData['name'],
-              description: productData['description'],
-              price: productData['price'],
-              imageUrl: productData['imageUrl'],
-              isFavorite: productData['isFavorite']),
-        );
+        Map<String, dynamic> value = {'id': productId, ...productData};
+        _items.add(Product.fromJson(value)
+            //   Product(
+            //       id: productId.toString(),
+            //       name: productData['name'],
+            //       description: productData['description'],
+            //       price: productData['price'],
+            //       imageUrl: productData['imageUrl'],
+            //       isFavorite: productData['isFavorite']),
+            );
       },
     );
     notifyListeners();
@@ -87,23 +89,20 @@ class ProductList with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    final response =
-        await http.post(Uri.parse('${Constants.PRODUCT_BASE_URL}.json'),
-            body: jsonEncode({
-              "name": product.name,
-              "description": product.description,
-              "imageUrl": product.imageUrl,
-              "price": product.price,
-              "isFavorite": product.isFavorite
-            }));
+    final response = await http.post(
+        Uri.parse('${Constants.PRODUCT_BASE_URL}.json?auth=$_token'),
+        body: jsonEncode({
+          "name": product.name,
+          "description": product.description,
+          "imageUrl": product.imageUrl,
+          "price": product.price,
+          "isFavorite": product.isFavorite
+        }));
 
     final id = jsonDecode(response.body)['name'];
-    _items.add(Product(
-        id: id,
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        imageUrl: product.imageUrl));
+    Map<String, dynamic> value = {'id': id, ...product.toJson()};
+
+    _items.add(Product.fromJson(value));
     notifyListeners();
   }
 
@@ -113,8 +112,8 @@ class ProductList with ChangeNotifier {
     if (findIndex >= 0) {
       _items.remove(product);
       super.notifyListeners();
-      final response = await http.delete(
-          Uri.parse('${Constants.PRODUCT_BASE_URL}/${product.id}.json'));
+      final response = await http.delete(Uri.parse(
+          '${Constants.PRODUCT_BASE_URL}/${product.id}.json?auth=$_token'));
       if (response.statusCode >= 400) {
         _items.insert(findIndex, product);
         super.notifyListeners();
