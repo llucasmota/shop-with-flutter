@@ -32,12 +32,12 @@ class MyApp extends StatelessWidget {
         /// no update passamos como segundo parâmetro uma instância de auth
         /// e um [previous] que é a última versão de product_list
         ChangeNotifierProxyProvider<Auth, ProductList>(
-          create: (_) => ProductList('', []),
+          create: (_) => ProductList(),
           update: (context, auth, previous) =>
               ProductList(auth.token ?? '', previous?.items ?? []),
         ),
         ChangeNotifierProxyProvider<Auth, OrderList>(
-          create: (_) => OrderList('', []),
+          create: (_) => OrderList(),
           update: (context, auth, previous) {
             return OrderList(auth.token ?? '', previous?.items ?? []);
           },
