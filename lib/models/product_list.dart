@@ -14,7 +14,7 @@ class ProductList with ChangeNotifier {
 
   bool _showFavoriteOnly = false;
 
-  ProductList(this._token, this._items);
+  ProductList([this._token = '', this._items = const []]);
 
   List<Product> get items {
     return [..._items];
@@ -63,41 +63,41 @@ class ProductList with ChangeNotifier {
     return Future.value();
   }
 
-  Future<void> loadProducts() async {
+  Future<void> loadProducts(String userId) async {
     _items.clear();
 
     final response = await http
         .get(Uri.parse('${Constants.PRODUCT_BASE_URL}.json?auth=$_token'));
+
     if (response.body == 'null') return;
+
+    final favResponse = await http.get(
+      Uri.parse('${Constants.USER_FAVORITES_URL}/$userId.json?auth=$_token'),
+    );
+
+    Map<String, dynamic> favData =
+        favResponse.body == 'null' ? {} : jsonDecode(favResponse.body);
+
     Map<String, dynamic> data = jsonDecode(response.body);
     data.forEach(
       (productId, productData) {
+        bool isFavorite = favData[productId] != null
+            ? favData[productId]['isFavorite']
+            : false;
+
+        productData['isFavorite'] = isFavorite;
+
         Map<String, dynamic> value = {'id': productId, ...productData};
-        _items.add(Product.fromJson(value)
-            //   Product(
-            //       id: productId.toString(),
-            //       name: productData['name'],
-            //       description: productData['description'],
-            //       price: productData['price'],
-            //       imageUrl: productData['imageUrl'],
-            //       isFavorite: productData['isFavorite']),
-            );
+        _items.add(Product.fromJson(value));
       },
     );
     notifyListeners();
-    print(jsonDecode(response.body));
   }
 
   Future<void> addProduct(Product product) async {
     final response = await http.post(
         Uri.parse('${Constants.PRODUCT_BASE_URL}.json?auth=$_token'),
-        body: jsonEncode({
-          "name": product.name,
-          "description": product.description,
-          "imageUrl": product.imageUrl,
-          "price": product.price,
-          "isFavorite": product.isFavorite
-        }));
+        body: jsonEncode(product.toJsonWithoutId(product)));
 
     final id = jsonDecode(response.body)['name'];
     Map<String, dynamic> value = {'id': id, ...product.toJson()};
