@@ -12,7 +12,7 @@ class OrderList with ChangeNotifier {
   List<Order> _items = [];
   final String _token;
 
-  OrderList(this._token, this._items);
+  OrderList([this._token = '', this._items = const []]);
 
   List<Order> get items {
     return [..._items];
@@ -61,7 +61,6 @@ class OrderList with ChangeNotifier {
         .get(Uri.parse('${Constants.ORDERS_BASE_URL}.json?auth=$_token'));
     if (response.body == 'null') return;
     Map<String, dynamic> data = jsonDecode(response.body);
-    print(jsonDecode(response.body));
     data.forEach(
       (orderId, ordersData) {
         items.add(Order(
