@@ -30,17 +30,28 @@ class Product with ChangeNotifier {
 
   Map<String, dynamic> toJson() => _$ProductToJson(this);
 
+  Map<String, dynamic> toJsonWithoutId(Product product) {
+    return {
+      'name': product.name,
+      'description': product.description,
+      'price': product.price,
+      'imageUrl': product.imageUrl
+    };
+  }
+
   void _toggleFavorite(String token) {
     isFavorite = !isFavorite;
+
     notifyListeners();
   }
 
-  Future<void> toggleFavorite(String token) async {
+  Future<void> toggleFavorite(String token, String userId) async {
     _toggleFavorite(token);
 
-    final response = await http.patch(
-        Uri.parse('${Constants.PRODUCT_BASE_URL}/$id.json?auth=$token'),
-        body: jsonEncode({"isFavorite": isFavorite}));
+    final response = await http.put(
+        Uri.parse(
+            '${Constants.USER_FAVORITES_URL}/$userId/$id.json?auth=$token'),
+        body: jsonEncode({'isFavorite': isFavorite}));
 
     if (response.statusCode >= 400) {
       _toggleFavorite(token);
