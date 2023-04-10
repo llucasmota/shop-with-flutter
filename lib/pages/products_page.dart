@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop/components/app_drawer.dart';
 import 'package:shop/components/product_item.dart';
+import 'package:shop/models/auth.dart';
 import 'package:shop/models/product_list.dart';
 import 'package:shop/utils/app_routes.dart';
 
@@ -13,7 +14,7 @@ class ProductsPage extends StatelessWidget {
     return Provider.of<ProductList>(
       context,
       listen: false,
-    ).loadProducts();
+    ).loadProducts(Provider.of<Auth>(context, listen: false).userId ?? '');
   }
 
   @override
