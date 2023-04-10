@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop/models/auth.dart';
 import 'package:shop/models/cart.dart';
 import 'package:shop/models/product.dart';
 import 'package:shop/utils/app_routes.dart';
@@ -9,6 +10,8 @@ class ProductGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Auth auth = Provider.of<Auth>(context, listen: false);
+
     /**
      * No react isso seria como um useProductContext
      */
@@ -29,7 +32,7 @@ class ProductGridItem extends StatelessWidget {
           title: Text(product.name, textAlign: TextAlign.center),
           leading: IconButton(
             onPressed: () async {
-              await product.toggleFavorite();
+              await product.toggleFavorite(auth.token ?? '', auth.userId ?? '');
             },
             icon: Icon(
               product.isFavorite ? Icons.favorite : Icons.favorite_border,
@@ -40,7 +43,7 @@ class ProductGridItem extends StatelessWidget {
             onPressed: () {
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Produto adicionado com sucesso'),
+                content: const Text('Produto adicionado com sucesso'),
                 duration: Duration(seconds: 2),
                 action: SnackBarAction(
                   label: 'DESFAZER',
