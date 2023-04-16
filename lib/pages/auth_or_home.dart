@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:provider/provider.dart';
@@ -11,8 +12,23 @@ class AuthOrHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Auth auth = Provider.of<Auth>(context);
-    return auth.isAuthenticated
-        ? const ProductsOverviewPage()
-        : const AuthPage();
+
+    return FutureBuilder(
+        future: auth.tryAutoLogin(),
+        builder: (ctx, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.error != null) {
+            return const Center(
+              child: Text('Ocorreu um erro'),
+            );
+          } else {
+            return auth.isAuthenticated
+                ? const ProductsOverviewPage()
+                : const AuthPage();
+          }
+        });
   }
 }
