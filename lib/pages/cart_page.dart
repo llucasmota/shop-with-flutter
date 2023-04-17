@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop/components/cart_item_component.dart';
+import 'package:shop/models/auth.dart';
 import 'package:shop/models/cart.dart';
 import 'package:shop/models/cart_item.dart';
 import 'package:shop/models/order_list.dart';
@@ -73,8 +74,10 @@ class CartButton extends StatefulWidget {
 
 class _CartButtonState extends State<CartButton> {
   bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
+    var userId = Provider.of<Auth>(context, listen: false)?.userId;
     return _isLoading
         ? const CircularProgressIndicator()
         : TextButton(

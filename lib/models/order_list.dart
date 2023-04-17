@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:shop/models/cart.dart';
@@ -10,6 +9,10 @@ import 'package:shop/utils/constantes.dart';
 
 class OrderList with ChangeNotifier {
   List<Order> _items = [];
+  final String _token;
+  final String userId;
+
+  OrderList([this._token = '', this._items = const [], this.userId = '']);
 
   List<Order> get items {
     return [..._items];
@@ -21,21 +24,21 @@ class OrderList with ChangeNotifier {
 
   Future<void> addOrder(Cart cart) async {
     final date = DateTime.now();
-    final response =
-        await http.post(Uri.parse('${Constants.ORDERS_BASE_URL}.json'),
-            body: jsonEncode({
-              'total': cart.totalAmount,
-              'date': date.toIso8601String(),
-              'products': cart.items.values
-                  .map((cartItem) => {
-                        'id': cartItem.id,
-                        'productId': cartItem.productId,
-                        'name': cartItem.name,
-                        'quantity': cartItem.quantity,
-                        'price': cartItem.price,
-                      })
-                  .toList()
-            }));
+    final response = await http.post(
+        Uri.parse('${Constants.ORDERS_BASE_URL}/$userId.json?auth=$_token'),
+        body: jsonEncode({
+          'total': cart.totalAmount,
+          'date': date.toIso8601String(),
+          'products': cart.items.values
+              .map((cartItem) => {
+                    'id': cartItem.id,
+                    'productId': cartItem.productId,
+                    'name': cartItem.name,
+                    'quantity': cartItem.quantity,
+                    'price': cartItem.price,
+                  })
+              .toList()
+        }));
 
     final id = jsonDecode(response.body)['name'];
     _items.insert(
@@ -52,16 +55,15 @@ class OrderList with ChangeNotifier {
   }
 
   Future<void> loadOrders() async {
-    _items.clear();
+    List<Order> items = [];
 
-    final response =
-        await http.get(Uri.parse('${Constants.ORDERS_BASE_URL}.json'));
+    final response = await http.get(
+        Uri.parse('${Constants.ORDERS_BASE_URL}/$userId.json?auth=$_token'));
     if (response.body == 'null') return;
     Map<String, dynamic> data = jsonDecode(response.body);
-    print(jsonDecode(response.body));
     data.forEach(
       (orderId, ordersData) {
-        _items.add(Order(
+        items.add(Order(
             id: orderId.toString(),
             date: DateTime.parse(ordersData['date']),
             products: (ordersData['products'] as List<dynamic>)
@@ -77,7 +79,7 @@ class OrderList with ChangeNotifier {
             total: ordersData['total']));
       },
     );
-
+    _items = items.reversed.toList();
     notifyListeners();
   }
 }
