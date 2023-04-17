@@ -53,6 +53,7 @@ class Auth with ChangeNotifier {
     _userId = null; // localId
     _expiresIn = null;
     _clearLogoutTimer();
+    Store.remove('userData').then((_) {});
     notifyListeners();
   }
 
