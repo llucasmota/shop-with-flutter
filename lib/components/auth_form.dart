@@ -61,8 +61,8 @@ class _AuthFormState extends State<AuthForm>
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, -1.5),
-      end: const Offset(0, 0),
+      begin: const Offset(0.0, -1.5),
+      end: const Offset(0.0, 0.0),
     ).animate(
       CurvedAnimation(
         parent: _controller!,
@@ -196,20 +196,23 @@ class _AuthFormState extends State<AuthForm>
                 curve: Curves.linear,
                 child: FadeTransition(
                   opacity: _opacityAnimation!,
-                  child: TextFormField(
-                    decoration:
-                        const InputDecoration(labelText: 'Confirmar Senha'),
-                    keyboardType: TextInputType.emailAddress,
-                    obscureText: true,
-                    validator: _isLogin()
-                        ? null
-                        : (_password) {
-                            final password = _password ?? '';
-                            if (password != _passwordController.text) {
-                              return 'Senhas informadas não conferem.';
-                            }
-                            return null;
-                          },
+                  child: SlideTransition(
+                    position: _slideAnimation!,
+                    child: TextFormField(
+                      decoration:
+                          const InputDecoration(labelText: 'Confirmar Senha'),
+                      keyboardType: TextInputType.emailAddress,
+                      obscureText: true,
+                      validator: _isLogin()
+                          ? null
+                          : (_password) {
+                              final password = _password ?? '';
+                              if (password != _passwordController.text) {
+                                return 'Senhas informadas não conferem.';
+                              }
+                              return null;
+                            },
+                    ),
                   ),
                 ),
               ),
