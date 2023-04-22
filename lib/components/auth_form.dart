@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_final_fields
 
-import 'dart:async';
 import 'dart:core';
 
 import 'package:flutter/material.dart';
@@ -21,7 +20,7 @@ class AuthForm extends StatefulWidget {
 /// seja capaz de executar animções
 class _AuthFormState extends State<AuthForm>
     with SingleTickerProviderStateMixin {
-  final passwordController = TextEditingController();
+  final _passwordController = TextEditingController();
   final emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -29,33 +28,52 @@ class _AuthFormState extends State<AuthForm>
   Map<String, String> _authData = {'email': '', 'password': ''};
   AuthMode _authMode = AuthMode.login;
 
+  // AnimationController? _controller;
+  // Animation<Size>? _heightAnimation;
+
   AnimationController? _controller;
-  Animation<Size>? _heightAnimation;
+  Animation<double>? _opacityAnimation;
+  Animation<Offset>? _slideAnimation;
 
   bool _isLogin() => _authMode == AuthMode.login;
   bool _isSignup() => _authMode == AuthMode.signup;
 
   @override
   void initState() {
+    super.initState();
     _controller = AnimationController(
         vsync: this,
         duration: const Duration(
-          milliseconds: 400,
+          milliseconds: 300,
         ));
 
     /// Size(width, heigh)
     /// Trabalhamos a altura nessa animacão, portanto informamos o inicio(310) e o fim(400)
     ///
-    _heightAnimation = Tween<Size>(
-      begin: const Size(double.infinity, 310),
-      end: const Size(double.infinity, 400),
-    ).animate(CurvedAnimation(parent: _controller!, curve: Curves.linear));
+    _opacityAnimation = Tween(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller!,
+        curve: Curves.linear,
+      ),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, -1.5),
+      end: const Offset(0, 0),
+    ).animate(
+      CurvedAnimation(
+        parent: _controller!,
+        curve: Curves.linear,
+      ),
+    );
 
     /// sem isso a animação não funciona
     // _heightAnimation?.addListener(() {
     //   setState(() {});
     // });
-    super.initState();
   }
 
   @override
@@ -127,34 +145,38 @@ class _AuthFormState extends State<AuthForm>
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
     return Card(
-        elevation: 8,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeIn,
-          height: _isLogin() ? 310 : 400,
-          width: deviceSize.width * 0.75,
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(children: [
+      elevation: 8,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+        padding: const EdgeInsets.all(16),
+        height: _isLogin() ? 330 : 400,
+        // height: _heightAnimation?.value.height ?? (_isLogin() ? 310 : 400),
+        width: deviceSize.width * 0.75,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
               TextFormField(
                 decoration: const InputDecoration(labelText: 'E-mail'),
                 keyboardType: TextInputType.emailAddress,
                 onSaved: (email) => _authData['email'] = email ?? '',
-                controller: emailController,
                 validator: (_email) {
                   final email = _email ?? '';
                   if (email.trim().isEmpty || !email.contains('@')) {
                     return 'Informe um e-mail válido';
                   }
+                  return null;
                 },
               ),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Senha'),
                 keyboardType: TextInputType.visiblePassword,
                 obscureText: true,
-                controller: passwordController,
+                controller: _passwordController,
                 maxLength: 10,
                 onSaved: (pass) => _authData['password'] = pass ?? '',
                 validator: (passwordValue) {
@@ -165,49 +187,62 @@ class _AuthFormState extends State<AuthForm>
                   return null;
                 },
               ),
-              if (_isSignup())
-                TextFormField(
-                  decoration:
-                      const InputDecoration(labelText: 'Confirmar senha'),
-                  keyboardType: TextInputType.visiblePassword,
-                  obscureText: true,
-                  maxLength: 10,
-                  validator: (_password) {
-                    final pass = _password ?? '';
-                    if (pass != passwordController.text) {
-                      return 'Senhas informadas não conferem';
-                    }
-                  },
+              AnimatedContainer(
+                constraints: BoxConstraints(
+                  minHeight: _isLogin() ? 0 : 60,
+                  maxHeight: _isLogin() ? 0 : 120,
                 ),
-              const SizedBox(
-                height: 20,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.linear,
+                child: FadeTransition(
+                  opacity: _opacityAnimation!,
+                  child: TextFormField(
+                    decoration:
+                        const InputDecoration(labelText: 'Confirmar Senha'),
+                    keyboardType: TextInputType.emailAddress,
+                    obscureText: true,
+                    validator: _isLogin()
+                        ? null
+                        : (_password) {
+                            final password = _password ?? '';
+                            if (password != _passwordController.text) {
+                              return 'Senhas informadas não conferem.';
+                            }
+                            return null;
+                          },
+                  ),
+                ),
               ),
+              const SizedBox(height: 20),
               if (_isLoading)
-                const CircularProgressIndicator.adaptive()
+                const CircularProgressIndicator()
               else
                 ElevatedButton(
+                  onPressed: _submit,
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 8,
+                    ),
                   ),
-                  onPressed: _submit,
-                  child: Text(_isLogin() ? 'entrar' : 'REGISTRAR'),
+                  child: Text(_isLogin() ? 'ENTRAR' : 'REGISTRAR'),
                 ),
               const Spacer(),
-              ElevatedButton(
-                  style:
-                      ElevatedButton.styleFrom(backgroundColor: Colors.white),
+              TextButton(
+                  style: TextButton.styleFrom(backgroundColor: Colors.white),
                   onPressed: switchAuthMode,
                   child: Text(
                     _isLogin() ? 'DESEJA SE REGISTRAR' : 'JÁ POSSUI CONTA?',
                     style:
                         TextStyle(color: Theme.of(context).colorScheme.primary),
                   ))
-            ]),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
