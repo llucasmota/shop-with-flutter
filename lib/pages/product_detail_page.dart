@@ -13,28 +13,35 @@ class ProductDetailPage extends StatelessWidget {
         ModalRoute.of(context)!.settings.arguments as Product;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          product.name,
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Container(
-              height: 300,
-              width: double.infinity,
-              alignment: Alignment.center,
-              child: Image.network(
-                product.imageUrl,
-                fit: BoxFit.cover,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 300,
+            // fixo
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Hero(
+                tag: product.id,
+                child: Image.network(
+                  product.imageUrl,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              centerTitle: true,
+              title: Text(
+                product.name,
+                textAlign: TextAlign.center,
               ),
             ),
+          ),
+          SliverList(
+              delegate: SliverChildListDelegate([
             const SizedBox(
               height: 10,
             ),
             Text(
               'R\$ ${product.price}',
+              textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey, fontSize: 20),
             ),
             const SizedBox(
@@ -47,9 +54,14 @@ class ProductDetailPage extends StatelessWidget {
                 product.description,
                 textAlign: TextAlign.center,
               ),
-            )
-          ],
-        ),
+            ),
+            // colocado para teste apenas
+            SizedBox(
+              height: 1000,
+            ),
+            Text('Fim')
+          ]))
+        ],
       ),
     );
   }
